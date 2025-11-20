@@ -1,0 +1,91 @@
+1.ประกาศตัวแปร
+	Dim currentBalance As Decimal = 0
+
+2.ฟอร์มโหลด
+	UpdateBalanceDisplay()
+
+3.เพิ่มฟังก์ชั่น
+Private Sub UpdateBalanceDisplay()
+        ' แสดงผลแบบมีทศนิยม 2 ตำแหน่ง (N2)
+        Label3.Text = currentBalance.ToString("N2") & " บาท"
+
+        ' เปลี่ยนสีตัวหนังสือ: ถ้าเงินเป็น 0 หรือติดลบ(กรณีอื่น) ให้เป็นสีแดง, มีเงินให้เป็นสีเขียว
+        If currentBalance > 0 Then
+            Label3.ForeColor = Color.Green
+        Else
+            Label3.ForeColor = Color.Red
+        End If
+    End Sub
+  
+  Private Sub ClearInput()
+        TextBox1.Clear()
+        TextBox1.Focus() ' ให้เคอร์เซอร์กลับไปกระพริบที่ช่องเดิม
+    End Sub
+
+4.ปุ่มฝากเงิน
+Dim amount As Decimal
+        ' ตรวจสอบว่าสิ่งที่กรอกเป็นตัวเลขหรือไม่ และต้องมากกว่า 0
+        If Decimal.TryParse(TextBox1.Text, amount) AndAlso amount > 0 Then
+            ' คำนวณเพิ่มยอดเงิน
+            currentBalance += amount
+            ' บันทึกประวัติ
+            ListBox1.Items.Add("ฝากเงิน: +" & amount.ToString("N2") & " บาท")
+            ' อัพเดทหน้าจอ
+            UpdateBalanceDisplay()
+            ClearInput()
+        Else
+            MessageBox.Show("กรุณากรอกจำนวนเงินที่ถูกต้อง (ต้องเป็นตัวเลขและมากกว่า 0)", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End If
+
+5.ปุ่มถอนเงิน
+  Dim amount As Decimal
+        ' ตรวจสอบว่าเป็นตัวเลข และ มากกว่า 0
+        If Decimal.TryParse(TextBox1.Text, amount) AndAlso amount > 0 Then
+            ' [Logic Check] ตรวจสอบว่ามีเงินพอให้ถอนหรือไม่?
+            If currentBalance >= amount Then
+                ' ตัดยอดเงิน
+                currentBalance -= amount
+                ' บันทึกประวัติ
+                ListBox1.Items.Add("ถอนเงิน: -" & amount.ToString("N2") & " บาท")
+                ' อัพเดทหน้าจอ
+                UpdateBalanceDisplay()
+                ClearInput()
+            Else
+                MessageBox.Show("ยอดเงินคงเหลือไม่เพียงพอสำหรับการถอน", "ทำรายการไม่ได้", MessageBoxButtons.OK, MessageBoxIcon.Error)
+            End If
+        Else
+            MessageBox.Show("กรุณากรอกจำนวนเงินที่ถูกต้อง", "ข้อผิดพลาด", MessageBoxButtons.OK, MessageBoxIcon.Warning)
+        End If
+
+6.ปุ่มคิดดอกเบี้ย
+' กำหนดดอกเบี้ย 2% (0.02)
+        Dim interestRate As Decimal = 0.02D
+        ' คำนวณดอกเบี้ยจากยอดเงินปัจจุบัน
+        Dim interest As Decimal = currentBalance * interestRate
+        Dim totalWithInterest As Decimal = currentBalance + interest
+        ' แสดงผลลัพธ์เป็น Pop-up (MessageBox)
+        MessageBox.Show("ยอดเงินต้น: " & currentBalance.ToString("N2") & " บาท" & vbCrLf &
+                        "ดอกเบี้ยที่ได้รับ (2%): " & interest.ToString("N2") & " บาท" & vbCrLf &
+                        "รวมยอดเงินทั้งหมด: " & totalWithInterest.ToString("N2") & " บาท",
+                        "ผลการคำนวณดอกเบี้ยรายปี")
+
+7.ปุ่มบันทึกไฟล์
+Try
+            ' 1. หาที่อยู่ของหน้าจอ Desktop ของเครื่องปัจจุบัน
+            Dim desktopPath As String = Environment.GetFolderPath(Environment.SpecialFolder.Desktop)
+            ' 2. รวมที่อยู่ Desktop เข้ากับชื่อไฟล์ "history.txt"
+            Dim filePath As String = System.IO.Path.Combine(desktopPath, "history.txt")
+            ' 3. สร้างไฟล์ที่ Desktop ตามที่อยู่ที่ได้มา
+            Using writer As New System.IO.StreamWriter(filePath)
+                For Each item As String In ListBox1.Items
+                    writer.WriteLine(item)
+                Next
+            End Using
+            MessageBox.Show("บันทึกข้อมูลลงหน้าจอ (Desktop) เรียบร้อยแล้ว!" & vbCrLf & "ไฟล์อยู่ที่: " & filePath, "สำเร็จ")
+        Catch ex As Exception
+            MessageBox.Show("เกิดข้อผิดพลาดในการบันทึก: " & ex.Message, "Error")
+        End Try
+8.ปุ่มออก
+Application.Exit()
+
+
