@@ -1,4 +1,4 @@
-1.ประกาศตัวแปร
+1.ประกาศตัวแปรภายนอก 
 	Dim currentBalance As Decimal = 0
 
 2.ฟอร์มโหลด
@@ -23,7 +23,7 @@ Private Sub UpdateBalanceDisplay()
         End If
     End Sub
   
-  Private Sub ClearInput()
+Private Sub ClearInput()
         TextBox1.Clear()
         TextBox1.Focus() ' ให้เคอร์เซอร์กลับไปกระพริบที่ช่องเดิม
     End Sub
